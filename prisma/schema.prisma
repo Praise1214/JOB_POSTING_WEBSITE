@@ -56,10 +56,20 @@ id String @id @default(cuid())
   email String? @unique
   emailVerified DateTime?
   image String?
+  password String?
   accounts Account[]
   sessions Session[]
   jobs Job[] @relation("PostedJobs")
   applications Application[]
+}
+
+model EmailOTP {
+  id String @id @default(cuid())
+  email String
+  otp String
+  expiresAt DateTime
+
+  @@index([email])
 }
 
 model Job {
