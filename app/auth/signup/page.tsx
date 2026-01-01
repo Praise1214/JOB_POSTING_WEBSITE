@@ -82,7 +82,9 @@ export default function SignUpPage() {
       router.push("/auth/verify-otp");
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to send OTP. Please try again."
+        err instanceof Error
+          ? err.message
+          : "Failed to send OTP. Please try again."
       );
     } finally {
       setLoading(false);
@@ -121,7 +123,9 @@ export default function SignUpPage() {
         <form onSubmit={handleSignup} className="space-y-4">
           {/* Name */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Full Name</label>
+            <label className="text-sm font-medium text-foreground">
+              Full Name
+            </label>
             <input
               type="text"
               placeholder="Enter your full name"
@@ -150,7 +154,9 @@ export default function SignUpPage() {
 
           {/* Password */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Password</label>
+            <label className="text-sm font-medium text-foreground">
+              Password
+            </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
@@ -173,7 +179,9 @@ export default function SignUpPage() {
 
           {/* Confirm Password */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Confirm Password</label>
+            <label className="text-sm font-medium text-foreground">
+              Confirm Password
+            </label>
             <input
               type="password"
               placeholder="Re-enter your password"
