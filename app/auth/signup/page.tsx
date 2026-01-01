@@ -92,7 +92,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-start justify-center bg-gradient-subtle p-4 pt-8">
+    <div className="min-h-screen flex items-start justify-center bg-gradient-subtle p-4 pt-4">
       <div
         ref={formRef}
         className="w-full max-w-md bg-card/80 backdrop-blur-xl rounded-2xl shadow-medium p-8 border border-border/50"

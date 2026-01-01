@@ -3,12 +3,17 @@
 import { useState, useEffect, useRef } from "react";
 import { loginGithub, loginGoogle, loginX } from "@/lib/auth";
 import { Eye, EyeOff, Briefcase, Mail, Lock } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function SignInPage() {
+  const router = useRouter();
   const formRef = useRef<HTMLDivElement>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     // Simple fade-in animation without gsap
@@ -26,9 +31,29 @@ export default function SignInPage() {
     }
   }, []);
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Sign in:", { email, password });
+    setError("");
+    setLoading(true);
+
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError(result.error || "Invalid email or password");
+      } else if (result?.ok) {
+        router.push("/");
+      }
+    } catch (err) {
+      setError("An error occurred. Please try again.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,6 +80,12 @@ export default function SignInPage() {
 
         {/* Email/Password Form */}
         <form onSubmit={handleEmailSubmit} className="space-y-4">
+          {/* Error Message */}
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
           {/* Email */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">Email</label>
@@ -124,9 +155,10 @@ export default function SignInPage() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-soft hover:shadow-medium transition-all duration-300"
+            disabled={loading}
+            className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-primary-foreground rounded-lg shadow-soft hover:shadow-medium transition-all duration-300"
           >
-            Sign In
+            {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 

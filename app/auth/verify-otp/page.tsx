@@ -78,7 +78,9 @@ export default function VerifyOtpPage() {
       setOtp("");
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to resend OTP. Please try again."
+        err instanceof Error
+          ? err.message
+          : "Failed to resend OTP. Please try again."
       );
     } finally {
       setLoading(false);
@@ -120,13 +122,16 @@ export default function VerifyOtpPage() {
         }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "Failed to create account");
+        throw new Error(
+          data.error || data.message || "Failed to create account"
+        );
       }
 
       setSuccess(true);
-      
+
       // Clear session storage
       sessionStorage.removeItem("signupData");
 
@@ -136,7 +141,9 @@ export default function VerifyOtpPage() {
       }, 2000);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to verify OTP. Please try again."
+        err instanceof Error
+          ? err.message
+          : "Failed to verify OTP. Please try again."
       );
     } finally {
       setLoading(false);
@@ -185,7 +192,9 @@ export default function VerifyOtpPage() {
         {/* Email Display */}
         <div className="flex items-center justify-center gap-2 mb-6 p-3 bg-secondary/30 rounded-lg">
           <Mail className="w-4 h-4 text-muted-foreground" />
-          <p className="text-sm font-medium text-foreground">{signupData.email}</p>
+          <p className="text-sm font-medium text-foreground">
+            {signupData.email}
+          </p>
         </div>
 
         {/* Success State */}
@@ -214,7 +223,9 @@ export default function VerifyOtpPage() {
               type="text"
               placeholder="000000"
               value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              onChange={(e) =>
+                setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+              }
               maxLength={6}
               className="w-full h-12 bg-background border border-border rounded-lg px-3 text-center text-lg font-semibold focus:border-primary focus:ring-2 focus:ring-primary/20 text-foreground tracking-widest"
               disabled={success}

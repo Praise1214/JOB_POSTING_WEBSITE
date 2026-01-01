@@ -2,12 +2,11 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-export async function POST(req:Request) {
+export async function POST(req: Request) {
+  const { name, email, password, otp } = await req.json();
 
-  const {name, email, password, otp} = await req.json();
-
-  if(!name || !email || !password || !otp) {
-    return NextResponse.json({error: "Missing Fields"}, {status: 400})
+  if (!name || !email || !password || !otp) {
+    return NextResponse.json({ error: "Missing Fields" }, { status: 400 });
   }
 
   const record = await prisma.emailOTP.findFirst({
@@ -15,21 +14,24 @@ export async function POST(req:Request) {
       email,
       otp,
       expiresAt: { gt: new Date() },
-    }
-  })
+    },
+  });
 
   if (!record) {
-    return NextResponse.json({ error: "Invalid or expired OTP" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid or expired OTP" },
+      { status: 400 }
+    );
   }
-  
+
   const existingUser = await prisma.user.findUnique({
     where: {
       email,
-    }
+    },
   });
 
-  if(!existingUser) {
-    return NextResponse.json({error: "User Already Exists"}, {status: 400})
+  if (existingUser) {
+    return NextResponse.json({ error: "User Already Exists" }, { status: 400 });
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -38,12 +40,11 @@ export async function POST(req:Request) {
     data: {
       name,
       email,
-      password: hashedPassword
-    }
-  })
+      password: hashedPassword,
+    },
+  });
 
-  await prisma.emailOTP.deleteMany({where: {email}})
+  await prisma.emailOTP.deleteMany({ where: { email } });
 
   return NextResponse.json({ success: true });
-
 }
