@@ -207,27 +207,27 @@ export default function SignInPage() {
                 </div>
               </div>
 
-            <div className="space-y-2">
-              {/* Submit Button */}
-              <AnimatedButton
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 bg-blue-700 hover:bg-gray-900 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-300 text-lg"
-                onClick={() => {}}
-              >
-                {loading ? "Signing in..." : "Log in now"}
-              </AnimatedButton>
-
-              {/* Forgot Password Link */}
-              <div className="flex text-center justify-end ">
-                <a
-                  href="#"
-                  className="text-sm text-blue-600 hover:text-blue-700 transition-colors font-semibold"
+              <div className="space-y-2">
+                {/* Submit Button */}
+                <AnimatedButton
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 bg-blue-700 hover:bg-gray-900 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-300 text-lg"
+                  onClick={() => {}}
                 >
-                  Forgot password?
-                </a>
+                  {loading ? "Signing in..." : "Log in now"}
+                </AnimatedButton>
+
+                {/* Forgot Password Link */}
+                <div className="flex text-center justify-end ">
+                  <a
+                    href="#"
+                    className="text-sm text-blue-600 hover:text-blue-700 transition-colors font-semibold"
+                  >
+                    Forgot password?
+                  </a>
+                </div>
               </div>
-            </div>
             </form>
 
             {/* Divider */}

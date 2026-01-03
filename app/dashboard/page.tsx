@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 export default async function DashboardPage() {
   const session = await auth();
 
-  if(!session?.user?.id) {
+  if (!session?.user?.id) {
     redirect("/auth/sign");
   }
 
@@ -20,9 +20,9 @@ export default async function DashboardPage() {
       include: {
         job: {
           include: {
-            postedBy: true
-          }
-        }
+            postedBy: true,
+          },
+        },
       },
       orderBy: {
         appliedAt: "desc",
@@ -46,7 +46,7 @@ export default async function DashboardPage() {
     }),
   ]);
 
-    return (
+  return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-2xl font-bold text-gray-900 mb-8">Dashboard</h1>
 
@@ -175,5 +175,4 @@ export default async function DashboardPage() {
       </div>
     </div>
   );
-
 }
