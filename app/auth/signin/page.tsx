@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { loginGithub, loginGoogle, loginX } from "@/lib/auth";
-import { Eye, EyeOff, Briefcase, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, Briefcase } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import AnimatedButton from "@/components/AnimatedButton";
-1;
+
 export default function SignInPage() {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);

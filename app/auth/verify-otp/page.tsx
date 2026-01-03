@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import { Briefcase, Mail, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import gsap from "gsap";
-import AnimatedButton from "@/components/AnimatedButton";
 import ThreeBackground from "@/components/ThreeBackground";
 
 interface SignupData {
