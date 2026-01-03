@@ -9,13 +9,12 @@ import { PrismaClient } from "./app/generated/prisma";
 
 const prisma = new PrismaClient();
 
-export const {auth, handlers, signIn, signOut} = NextAuth({
+export const { auth, handlers, signIn, signOut } = NextAuth({
   session: {
     strategy: "jwt",
   },
   providers: [
-    
-     Credentials({
+    Credentials({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
@@ -52,29 +51,33 @@ export const {auth, handlers, signIn, signOut} = NextAuth({
       },
     }),
 
-    GitHub, 
-    Google({ clientId: process.env.AUTH_GOOGLE_ID!,
-    clientSecret: process.env.AUTH_GOOGLE_SECRET!,}), 
-    Twitter({ clientId: process.env.AUTH_TWITTER_ID!,
-    clientSecret: process.env.AUTH_TWITTER_SECRET!,})],
+    GitHub,
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID!,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+    }),
+    Twitter({
+      clientId: process.env.AUTH_TWITTER_ID!,
+      clientSecret: process.env.AUTH_TWITTER_SECRET!,
+    }),
+  ],
   adapter: PrismaAdapter(prisma),
   callbacks: {
-    async jwt({token, user}) {
-      if(user) {
+    async jwt({ token, user }) {
+      if (user) {
         token.id = user.id;
         token.name = user.name;
       }
 
-      return token
+      return token;
     },
 
-    async session({session, token}) {
-      if(session.user) {
+    async session({ session, token }) {
+      if (session.user) {
         session.user.id = token.id as string;
-        session.user.name = token.name as string
+        session.user.name = token.name as string;
       }
-      return session
-    }
-  }
-})
-
+      return session;
+    },
+  },
+});

@@ -13,7 +13,6 @@ export const loginGoogle = async () => {
   await signIn("google", { redirectTo: "/" });
 };
 
-
 export const logout = async () => {
   await signOut({ redirectTo: "/auth/signin" });
 };

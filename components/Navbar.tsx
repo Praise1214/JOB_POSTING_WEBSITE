@@ -1,13 +1,25 @@
-"use client"
+"use client";
 
 import Link from "next/link";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
-import { logout } from "@/lib/auth";
+import { useSession, signOut } from "next-auth/react";
+import { useCallback } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-  const {data: session} = useSession()
+  const handleLogout = useCallback(async () => {
+    try {
+      await signOut({ redirect: false });
+      // Manually redirect after session is cleared
+      router.push("/auth/signin");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  }, [router]);
+
   return (
     <nav className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -35,35 +47,39 @@ export default function Navbar() {
               Browse Jobs
             </Link>
 
-            {session ? (<>
+            {status === "loading" ? (
+              <div className="w-20 h-10 bg-gray-200 rounded-md animate-pulse" />
+            ) : session ? (
+              <>
+                <Link
+                  href="/jobs/post"
+                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Post a Job
+                </Link>
+
+                <Link
+                  href="/dashboard"
+                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Dashboard
+                </Link>
+
+                <button
+                  onClick={handleLogout}
+                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
               <Link
-              href="/jobs/post"
-              className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Post a Job
-            </Link>
-
-            <Link
-              href="/dashboard"
-              className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Dashboard
-            </Link>
-
-            <button
-              onClick={logout}
-              className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Sign Out
-            </button>
-            </>): <Link
-              href="/auth/signin"
-              className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Sign In
-            </Link>}
-
-            
+                href="/auth/signin"
+                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       </div>

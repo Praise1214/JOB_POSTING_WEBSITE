@@ -3,6 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Briefcase, Mail, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import gsap from "gsap";
+import AnimatedButton from "@/components/AnimatedButton";
+import ThreeBackground from "@/components/ThreeBackground";
 
 interface SignupData {
   name: string;
@@ -32,18 +35,13 @@ export default function VerifyOtpPage() {
 
     setSignupData(JSON.parse(data));
 
-    // Fade-in animation
+    // Fade-in animation with GSAP
     if (formRef.current) {
-      formRef.current.style.opacity = "0";
-      formRef.current.style.transform = "translateY(20px)";
-
-      setTimeout(() => {
-        if (formRef.current) {
-          formRef.current.style.transition = "all 0.6s ease-out";
-          formRef.current.style.opacity = "1";
-          formRef.current.style.transform = "translateY(0)";
-        }
-      }, 100);
+      gsap.fromTo(
+        formRef.current,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }
+      );
     }
   }, [router]);
 
@@ -159,10 +157,11 @@ export default function VerifyOtpPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-start justify-center bg-gradient-subtle p-4 pt-8">
+    <div className="min-h-screen flex items-start justify-center bg-gradient-subtle p-4 pt-8 relative">
+      <ThreeBackground />
       <div
         ref={formRef}
-        className="w-full max-w-md bg-card/80 backdrop-blur-xl rounded-2xl shadow-medium p-8 border border-border/50"
+        className="w-full max-w-md bg-card/80 backdrop-blur-xl rounded-2xl shadow-medium p-8 border border-border/50 relative z-10"
       >
         {/* Back Button */}
         <button
