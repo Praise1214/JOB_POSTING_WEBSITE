@@ -15,6 +15,7 @@ export default function AnimatedButton({
   onClick,
   className = "",
   type = "button",
+  disabled = false,
 }: AnimatedButtonProps) {
   const btnRef = useRef<HTMLButtonElement>(null);
 
@@ -69,6 +70,7 @@ export default function AnimatedButton({
       ref={btnRef}
       type={type}
       onClick={onClick}
+      disabled={disabled}
       className={`transform transition-all ${className}`}
     >
       {children}
