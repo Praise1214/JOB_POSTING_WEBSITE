@@ -1,11 +1,2 @@
-export const runtime = "nodejs";
+export { auth as middleware } from "@/auth";
 
-import { auth } from "@/auth";
-
-export const middleware = auth;
-
-export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|public).*)",
-  ],
-};
