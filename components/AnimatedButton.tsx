@@ -8,6 +8,7 @@ interface AnimatedButtonProps {
   onClick?: () => void;
   className?: string;
   type?: "button" | "submit" | "reset";
+  disabled?: boolean;
 }
 
 export default function AnimatedButton({
