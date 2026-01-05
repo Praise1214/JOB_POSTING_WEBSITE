@@ -5,9 +5,8 @@ import { transporter } from "@/lib/mailer";
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
-
   //Read Email from request Body
-  const {email} = await req.json();
+  const { email } = await req.json();
 
   //return email required if no email
   if (!email) {
@@ -31,11 +30,10 @@ export async function POST(req: Request) {
 
   //send OTP Email
   await transporter.sendMail({
-     from: `"FluxJobs" <${process.env.EMAIL_USER}>`,
+    from: `"FluxJobs" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: "Your FluxJobs OTP",
     html: `<h2>Your OTP is: <b>${otp}</b></h2><p>Expires in 10 minutes.</p>`,
-  })
-   return NextResponse.json({ success: true });
-
+  });
+  return NextResponse.json({ success: true });
 }

@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
-
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ jobId: string }> }
