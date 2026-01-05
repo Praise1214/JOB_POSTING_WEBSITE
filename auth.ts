@@ -53,7 +53,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       },
     }),
 
-    GitHub,
+    GitHub({
+      clientId: process.env.AUTH_GITHUB_ID!,
+      clientSecret: process.env.AUTH_GITHUB_SECRET!,
+    }),
     Google({
       clientId: process.env.AUTH_GOOGLE_ID!,
       clientSecret: process.env.AUTH_GOOGLE_SECRET!,
@@ -64,7 +67,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       // For OAuth providers, create or update user in database
       if (account?.provider !== "credentials") {
         const existingUser = await prisma.user.findUnique({
