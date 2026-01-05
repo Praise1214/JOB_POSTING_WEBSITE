@@ -4,9 +4,7 @@ import bcrypt from "bcryptjs";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import Twitter from "next-auth/providers/twitter";
-import { PrismaClient } from "./app/generated/prisma";
-
-const prisma = new PrismaClient();
+import { prisma } from "./lib/prisma";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   trustHost: true,
@@ -70,18 +68,23 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     async signIn({ user, account }) {
       // For OAuth providers, create or update user in database
       if (account?.provider !== "credentials") {
-        const existingUser = await prisma.user.findUnique({
-          where: { email: user.email! },
-        });
-
-        if (!existingUser) {
-          await prisma.user.create({
-            data: {
-              email: user.email!,
-              name: user.name,
-              image: user.image,
-            },
+        try {
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email! },
           });
+
+          if (!existingUser) {
+            await prisma.user.create({
+              data: {
+                email: user.email!,
+                name: user.name,
+                image: user.image,
+              },
+            });
+          }
+        } catch (error) {
+          console.error("Error saving OAuth user to database:", error);
+          // Still allow sign in even if database save fails
         }
       }
       return true;
