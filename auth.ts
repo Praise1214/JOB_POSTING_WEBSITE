@@ -4,7 +4,6 @@ import bcrypt from "bcryptjs";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import Twitter from "next-auth/providers/twitter";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "./app/generated/prisma";
 
 const prisma = new PrismaClient();
@@ -63,8 +62,26 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       clientSecret: process.env.AUTH_TWITTER_SECRET!,
     }),
   ],
-  adapter: PrismaAdapter(prisma),
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // For OAuth providers, create or update user in database
+      if (account?.provider !== "credentials") {
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email! },
+        });
+
+        if (!existingUser) {
+          await prisma.user.create({
+            data: {
+              email: user.email!,
+              name: user.name,
+              image: user.image,
+            },
+          });
+        }
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
