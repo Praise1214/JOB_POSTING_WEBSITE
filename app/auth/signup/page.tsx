@@ -3,11 +3,20 @@
 import { useState, useEffect, useRef } from "react";
 import { Eye, EyeOff, Briefcase } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import gsap from "gsap";
 import AnimatedButton from "@/components/AnimatedButton";
 
 export default function SignUpPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (status === "authenticated" && session) {
+      router.push("/dashboard");
+    }
+  }, [status, session, router]);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [showPassword, setShowPassword] = useState(false);

@@ -12,9 +12,13 @@ export default function Navbar() {
 
   const handleLogout = useCallback(async () => {
     try {
-      await signOut({ redirect: false });
-      // Manually redirect after session is cleared
+      await signOut({ 
+        redirect: false,
+        callbackUrl: "/auth/signin" 
+      });
+      // Force reload to clear all cached session data
       router.push("/auth/signin");
+      router.refresh();
     } catch (error) {
       console.error("Logout failed:", error);
     }

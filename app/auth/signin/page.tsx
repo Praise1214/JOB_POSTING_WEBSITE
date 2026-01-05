@@ -3,19 +3,27 @@
 import { useState, useEffect, useRef } from "react";
 import { loginGithub, loginGoogle, loginX } from "@/lib/auth";
 import { Eye, EyeOff, Briefcase } from "lucide-react";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import AnimatedButton from "@/components/AnimatedButton";
 
 export default function SignInPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const containerRef = useRef<HTMLDivElement>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (status === "authenticated" && session) {
+      router.push("/dashboard");
+    }
+  }, [status, session, router]);
 
   useEffect(() => {
     if (containerRef.current) {
