@@ -72,6 +72,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           // Use email if available, otherwise generate one from provider account ID
           const userEmail = user.email || `${account.providerAccountId}@${account.provider}.oauth`;
           
+          console.log("[Auth] OAuth signIn - provider:", account.provider);
+          console.log("[Auth] OAuth signIn - userEmail:", userEmail);
+          console.log("[Auth] OAuth signIn - providerAccountId:", account.providerAccountId);
+          
           const existingUser = await prisma.user.findUnique({
             where: { email: userEmail },
           });
@@ -84,12 +88,15 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                 image: user.image,
               },
             });
+            console.log("[Auth] Created new user:", userEmail);
+          } else {
+            console.log("[Auth] User exists:", userEmail);
           }
           
           // Update user object with the email so it's available in jwt callback
           user.email = userEmail;
         } catch (error) {
-          console.error("Error saving OAuth user to database:", error);
+          console.error("[Auth] Error saving OAuth user to database:", error);
           // Still allow sign in even if database save fails
         }
       }
