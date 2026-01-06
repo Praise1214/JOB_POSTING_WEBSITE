@@ -67,21 +67,27 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   callbacks: {
     async signIn({ user, account }) {
       // For OAuth providers, create or update user in database
-      if (account?.provider !== "credentials") {
+      if (account?.provider !== "credentials" && account) {
         try {
+          // Use email if available, otherwise generate one from provider account ID
+          const userEmail = user.email || `${account.providerAccountId}@${account.provider}.oauth`;
+          
           const existingUser = await prisma.user.findUnique({
-            where: { email: user.email! },
+            where: { email: userEmail },
           });
 
           if (!existingUser) {
             await prisma.user.create({
               data: {
-                email: user.email!,
-                name: user.name,
+                email: userEmail,
+                name: user.name || account.provider + " User",
                 image: user.image,
               },
             });
           }
+          
+          // Update user object with the email so it's available in jwt callback
+          user.email = userEmail;
         } catch (error) {
           console.error("Error saving OAuth user to database:", error);
           // Still allow sign in even if database save fails
