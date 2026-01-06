@@ -5,9 +5,11 @@ import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import Twitter from "next-auth/providers/twitter";
 import { prisma } from "./lib/prisma";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   trustHost: true,
+  adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
   },
@@ -54,6 +56,14 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     GitHub({
       clientId: process.env.AUTH_GITHUB_ID!,
       clientSecret: process.env.AUTH_GITHUB_SECRET!,
+      profile(profile) {
+        return {
+          id: String(profile.id),
+          name: profile.name || profile.login,
+          email: profile.email ?? `${profile.id}@github.oauth`,
+          image: profile.avatar_url,
+        };
+      },
     }),
     Google({
       clientId: process.env.AUTH_GOOGLE_ID!,
@@ -62,59 +72,32 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     Twitter({
       clientId: process.env.AUTH_TWITTER_ID!,
       clientSecret: process.env.AUTH_TWITTER_SECRET!,
+      profile(profile) {
+        return {
+          id: profile.data.id,
+          name: profile.data.name,
+          email: profile.data.email ?? `${profile.data.id}@twitter.oauth`,
+          image: profile.data.profile_image_url,
+        };
+      },
     }),
   ],
   callbacks: {
-    async signIn({ user, account }) {
-      // For OAuth providers, create or update user in database
-      if (account?.provider !== "credentials" && account) {
-        try {
-          // Use email if available, otherwise generate one from provider account ID
-          const userEmail = user.email || `${account.providerAccountId}@${account.provider}.oauth`;
-          
-          console.log("[Auth] OAuth signIn - provider:", account.provider);
-          console.log("[Auth] OAuth signIn - userEmail:", userEmail);
-          console.log("[Auth] OAuth signIn - providerAccountId:", account.providerAccountId);
-          
-          const existingUser = await prisma.user.findUnique({
-            where: { email: userEmail },
-          });
-
-          if (!existingUser) {
-            await prisma.user.create({
-              data: {
-                email: userEmail,
-                name: user.name || account.provider + " User",
-                image: user.image,
-              },
-            });
-            console.log("[Auth] Created new user:", userEmail);
-          } else {
-            console.log("[Auth] User exists:", userEmail);
-          }
-          
-          // Update user object with the email so it's available in jwt callback
-          user.email = userEmail;
-        } catch (error) {
-          console.error("[Auth] Error saving OAuth user to database:", error);
-          // Still allow sign in even if database save fails
-        }
-      }
-      return true;
-    },
     async jwt({ token, user }) {
+      // On sign in, add user info to token
       if (user) {
         token.id = user.id;
         token.name = user.name;
+        token.email = user.email;
       }
-
       return token;
     },
-
     async session({ session, token }) {
+      // Add token info to session
       if (session.user) {
         session.user.id = token.id as string;
         session.user.name = token.name as string;
+        session.user.email = token.email as string;
       }
       return session;
     },
