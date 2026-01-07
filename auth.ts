@@ -27,7 +27,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       name: "next-auth.state",
       options: {
         httpOnly: true,
-        sameSite: "none", 
+        sameSite: "none",
         path: "/",
         secure: true,
       },
@@ -93,12 +93,16 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       clientId: process.env.AUTH_TWITTER_ID!,
       clientSecret: process.env.AUTH_TWITTER_SECRET!,
       profile(profile) {
-        return {
-          id: profile.data.id,
-          name: profile.data.name,
-          email: profile.data.email ?? `${profile.data.id}@twitter.oauth`,
-          image: profile.data.profile_image_url,
-        };
+        // Twitter API v2 wraps data in 'data' object, but sometimes it doesn't
+        const userData = profile.data || profile;
+        const id = userData.id || profile.id || String(Date.now());
+        const name = userData.name || profile.name || "Twitter User";
+        const email = userData.email || profile.email || `${id}@twitter.oauth`;
+        const image = userData.profile_image_url || profile.profile_image_url || null;
+        
+        console.log("[Twitter Profile] id:", id, "name:", name, "email:", email);
+        
+        return { id, name, email, image };
       },
     }),
   ],
