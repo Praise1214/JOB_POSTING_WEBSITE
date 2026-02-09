@@ -6,10 +6,24 @@ import Google from "next-auth/providers/google";
 import Twitter from "next-auth/providers/twitter";
 import { prisma } from "./lib/prisma";
 import { PrismaAdapter } from "@auth/prisma-adapter";
+import type { Adapter } from "next-auth/adapters";
+
+const basePrismaAdapter = PrismaAdapter(prisma);
+
+// Wrap the PrismaAdapter to handle Twitter's missing email.
+// Twitter doesn't return an email, so the adapter's getUserByEmail
+// receives undefined and Prisma throws a validation error.
+const adapter: Adapter = {
+  ...basePrismaAdapter,
+  getUserByEmail: async (email: string) => {
+    if (!email) return null;
+    return basePrismaAdapter.getUserByEmail!(email);
+  },
+};
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   trustHost: true,
-  adapter: PrismaAdapter(prisma),
+  adapter,
   session: {
     strategy: "jwt",
   },
@@ -93,15 +107,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       clientId: process.env.AUTH_TWITTER_ID!,
       clientSecret: process.env.AUTH_TWITTER_SECRET!,
       profile(profile) {
-        // Twitter API v2 wraps data in 'data' object, but sometimes it doesn't
-        const userData = profile.data || profile;
-        const id = userData.id || profile.id || String(Date.now());
-        const name = userData.name || profile.name || "Twitter User";
-        const email = userData.email || profile.email || `${id}@twitter.oauth`;
-        const image = userData.profile_image_url || profile.profile_image_url || null;
-        
-        console.log("[Twitter Profile] id:", id, "name:", name, "email:", email);
-        
+        const userData = profile.data ?? profile;
+        const id = String(userData.id ?? profile.id ?? Date.now());
+        const name = String(userData.name ?? profile.name ?? "Twitter User");
+        const email = String(userData.email ?? profile.email ?? `${id}@twitter.oauth`);
+        const image = (userData.profile_image_url ?? profile.profile_image_url ?? null) as string | null;
+
         return { id, name, email, image };
       },
     }),
